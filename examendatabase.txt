@@ -1,0 +1,73 @@
+1. 
+SELECT *
+FROM employees;
+
+2.
+SELECT employees.first_name, employees.last_name, salaries.salary
+FROM employees
+LEFT JOIN salaries ON employees.emp_no = salaries.emp_no
+WHERE salaries.salary > 50000;
+
+3.
+SELECT departments.dept_name, COUNT(*) AS aantal
+FROM employees
+LEFT JOIN dept_emp ON employees.emp_no = dept_emp.emp_no
+LEFT JOIN departments ON dept_emp.dept_no = departments.dept_no
+GROUP BY departments.dept_name
+ORDER BY departments.dept_name ASC;
+
+4.
+SELECT employees.first_name, employees.last_name, salaries.salary
+FROM departments
+LEFT JOIN dept_emp ON departments.dept_no = dept_emp.dept_no
+LEFT JOIN employees ON dept_emp.emp_no = employees.emp_no
+LEFT JOIN salaries ON employees.emp_no = salaries.emp_no
+WHERE salaries.salary = (SELECT MAX(salaries.salary) FROM salaries);
+
+5.
+SELECT *
+FROM employees
+WHERE gender = 'F' AND last_name LIKE 'D%' AND hire_date > '1997-01-01';
+
+6.1
+SELECT customer.customer_id, customer.first_name, customer.last_name, COUNT(payment.amount) AS totale_inkomsten
+FROM film 
+LEFT JOIN inventory ON film.film_id = inventory.film_id 
+LEFT JOIN rental ON inventory.inventory_id = rental.inventory_id 
+LEFT JOIN customer ON rental.customer_id = customer.customer_id
+LEFT JOIN payment ON customer.customer_id = payment.customer_id
+GROUP BY customer.customer_id
+HAVING COUNT(rental.rental_id) > 5;
+
+
+6.2
+
+SELECT category.name AS categorie_naam, avg(film.length) AS gemiddelde_filmduur
+FROM film
+LEFT JOIN film_category ON film.film_id = film_category.film_id
+LEFT JOIN category ON film_category.category_id = category.category_id
+GROUP BY category.name
+ORDER BY category.name ASC;
+
+7. A en C
+
+8.
+DELIMITER $$
+
+CREATE FUNCTION count_films_by_category_name(category_name VARCHAR(50))
+RETURNS INT(10) DETERMINISTIC
+
+BEGIN
+
+DECLARE film_count INT(10);
+
+SELECT COUNT(film_id) INTO film_count
+FROM film_category
+INNER JOIN category on film_category.category_id = category.category_id
+WHERE category.name = category_name;
+
+RETURN film_count;
+
+END $$
+
+DELIMITER ;
